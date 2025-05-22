@@ -18,7 +18,8 @@
     "scripts": {
         "start": "node src/server.js",
         "dev": "nodemon src/server.js",
-        "lint": "eslint ."
+        "lint": "eslint .",
+        "test": "echo \"No tests implemented yet\" && exit 0"
     },
     "devDependencies": {
         "eslint": "^8.56.0",
