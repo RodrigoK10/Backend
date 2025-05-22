@@ -1,0 +1,36 @@
+name: Backend - Build and Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v3
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Lint (si tienes script definido)
+        run: npm run lint
+
+      - name: Pruebas (si tienes)
+        run: npm test
+
+      - name: Comprimir proyecto
+        run: zip -r backend.zip * .[^.]* -x "node_modules/*" ".env" "tests/*"
+
+      - name: Desplegar a Azure App Service (ZipDeploy)
+        run: |
+          curl -X POST "https://zjulen.scm.azurewebsites.net/api/zipdeploy" \
+          --user "$zjulen:${{ secrets.AZURE_BACKEND_DEPLOY_PASSWORD }}" \
+          --data-binary @"backend.zip"
