@@ -1,6 +1,7 @@
 {
     "name": "backend",
     "version": "1.0.0",
+    "type": "module",
     "main": "src/server.js",
     "dependencies": {
         "axios": "^1.9.0",
@@ -20,8 +21,7 @@
         "lint": "eslint ."
     },
     "devDependencies": {
-        "@eslint/js": "^9.27.0",
-        "eslint": "^9.27.0",
-        "globals": "^16.1.0"
+        "eslint": "^8.56.0",
+        "nodemon": "^3.0.3"
     }
 }
