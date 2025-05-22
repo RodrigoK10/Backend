@@ -17,12 +17,19 @@ const login = async (req, res) => {
             return res.status(400).json({ error: 'Usuario no encontrado' });
         }
 
-        let validPassword = false;
-        
+        console.log('Usuario encontrado:', {
+            usuario: user.usuario,
+            contrasenaAlmacenada: user.contrasena,
+            contrasenaRecibida: contrasena
+        });
+
         // Primero intentar verificar si la contraseña está hasheada
+        let validPassword = false;
         try {
             validPassword = await bcrypt.compare(contrasena, user.contrasena);
+            console.log('Resultado de comparación bcrypt:', validPassword);
         } catch (error) {
+            console.log('Error en bcrypt compare:', error.message);
             // Si la contraseña no está hasheada, verificar si coincide exactamente
             if (contrasena === user.contrasena) {
                 // Si coincide, actualizar a versión hasheada
@@ -35,6 +42,7 @@ const login = async (req, res) => {
                     .query('UPDATE Rodrigo SET contrasena = @hashedPassword WHERE id_usuario = @id');
                 
                 validPassword = true;
+                console.log('Contraseña actualizada con hash');
             }
         }
 

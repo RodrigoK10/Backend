@@ -2,7 +2,35 @@ const express = require('express');
 const router = express.Router();
 const { sql, config } = require('../config/db');
 
-// GET - Obtener todos los usuarios
+/**
+ * @swagger
+ * /api/usuarios:
+ *   get:
+ *     summary: Obtener todos los usuarios
+ *     tags: [Usuarios]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de usuarios obtenida exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id_usuario:
+ *                     type: integer
+ *                   usuario:
+ *                     type: string
+ *                   correo_electronico:
+ *                     type: string
+ *       401:
+ *         description: No autorizado
+ *       500:
+ *         description: Error del servidor
+ */
 router.get('/', async (req, res) => {
     try {
         const pool = await sql.connect(config);
@@ -17,7 +45,40 @@ router.get('/', async (req, res) => {
     }
 });
 
-// GET - Obtener un usuario por ID
+/**
+ * @swagger
+ * /api/usuarios/{id}:
+ *   get:
+ *     summary: Obtener un usuario por ID
+ *     tags: [Usuarios]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del usuario
+ *     responses:
+ *       200:
+ *         description: Usuario encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id_usuario:
+ *                   type: integer
+ *                 usuario:
+ *                   type: string
+ *                 correo_electronico:
+ *                   type: string
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error del servidor
+ */
 router.get('/:id', async (req, res) => {
     try {
         const pool = await sql.connect(config);
@@ -64,7 +125,42 @@ router.post('/', async (req, res) => {
     }
 });
 
-// PUT - Actualizar un usuario
+/**
+ * @swagger
+ * /api/usuarios/{id}:
+ *   put:
+ *     summary: Actualizar un usuario
+ *     tags: [Usuarios]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del usuario a actualizar
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               usuario:
+ *                 type: string
+ *               contrasena:
+ *                 type: string
+ *               correo_electronico:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Usuario actualizado exitosamente
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error del servidor
+ */
 router.put('/:id', async (req, res) => {
     const { usuario, contrasena, correo_electronico } = req.body;
     try {
@@ -89,7 +185,29 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// DELETE - Eliminar un usuario
+/**
+ * @swagger
+ * /api/usuarios/{id}:
+ *   delete:
+ *     summary: Eliminar un usuario
+ *     tags: [Usuarios]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del usuario a eliminar
+ *     responses:
+ *       200:
+ *         description: Usuario eliminado exitosamente
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error del servidor
+ */
 router.delete('/:id', async (req, res) => {
     try {
         const pool = await sql.connect(config);
