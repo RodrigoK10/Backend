@@ -57,7 +57,7 @@ jobs:
     - name: Deploy to Azure
       run: |
         curl -X POST "https://zjulen.scm.azurewebsites.net/api/zipdeploy" \
-        --user "${{ secrets.AZURE_DEPLOYMENT_USER }}:${{ secrets.AZURE_DEPLOYMENT_PASSWORD }}" \
+        --user "${{ secrets.AZURE_BACKEND_DEPLOY }}:${{ secrets.AZURE_BACKEND_DEPLOY }}" \
         --data-binary @"backend.zip"
       env:
         DB_SERVER: ${{ secrets.DB_SERVER }}
