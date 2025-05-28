@@ -1,31 +1,21 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_secreta_temporal';
+export const generateToken = (userId) => {
+    return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
+};
 
-// Middleware para verificar el token
-const verifyToken = (req, res, next) => {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
+export const verifyToken = (req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1];
 
     if (!token) {
-        return res.status(401).json({ error: 'Acceso denegado' });
+        return res.status(401).json({ message: 'Token no proporcionado' });
     }
 
     try {
-        const verified = jwt.verify(token, JWT_SECRET);
-        req.user = verified;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.userId = decoded.id;
         next();
     } catch (error) {
-        res.status(400).json({ error: 'Token inválido' });
+        return res.status(401).json({ message: 'Token inválido' });
     }
-};
-
-// Generar token
-const generateToken = (userId) => {
-    return jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: '24h' });
-};
-
-module.exports = {
-    verifyToken,
-    generateToken,
-    JWT_SECRET
 }; 

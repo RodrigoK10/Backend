@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
+import { sql, config } from '../config/db.js';
+
 const router = express.Router();
-const { sql, config } = require('../config/db');
 
 /**
  * @swagger
@@ -222,4 +223,4 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

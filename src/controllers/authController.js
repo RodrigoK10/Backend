@@ -1,8 +1,8 @@
-const bcrypt = require('bcryptjs');
-const { sql, config } = require('../config/db');
-const { generateToken } = require('../middleware/auth');
+import bcrypt from 'bcryptjs';
+import { sql, config } from '../config/db.js';
+import { generateToken } from '../middleware/auth.js';
 
-const login = async (req, res) => {
+export const login = async (req, res) => {
     const { usuario, contrasena } = req.body;
 
     try {
@@ -68,7 +68,7 @@ const login = async (req, res) => {
     }
 };
 
-const register = async (req, res) => {
+export const register = async (req, res) => {
     const { usuario, contrasena, correo_electronico } = req.body;
 
     try {
@@ -114,9 +114,4 @@ const register = async (req, res) => {
         console.error('Error en registro:', error);
         res.status(500).json({ error: 'Error en el servidor' });
     }
-};
-
-module.exports = {
-    login,
-    register
 }; 
