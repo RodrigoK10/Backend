@@ -3,17 +3,13 @@ name: CI/CD for Backend
 on:
   push:
     branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [18.x]
-
     steps:
     - uses: actions/checkout@v3
     
@@ -34,6 +30,8 @@ jobs:
         DB_SERVER: ${{ secrets.DB_SERVER }}
         DB_DATABASE: ${{ secrets.DB_DATABASE }}
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        DB_ENCRYPT: ${{ secrets.DB_ENCRYPT }}
+        ALLOWED_ORIGINS: ${{ secrets.ALLOWED_ORIGINS }}
 
   deploy:
     needs: test
@@ -50,12 +48,22 @@ jobs:
         
     - name: Install dependencies
       run: npm ci
+
+    - name: Create deployment package
+      run: |
+        rm -f backend.zip
+        zip -r backend.zip * .[^.]* -x "node_modules/*" ".env" "tests/*"
       
-    # Aquí puedes agregar los pasos de despliegue según tu plataforma
-    # Por ejemplo, para Heroku:
-    # - name: Deploy to Heroku
-    #   uses: akhileshns/heroku-deploy@v3.12.14
-    #   with:
-    #     heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-    #     heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
-    #     heroku_email: ${{ secrets.HEROKU_EMAIL }} 
+    - name: Deploy to Azure
+      run: |
+        curl -X POST "https://zjulen.scm.azurewebsites.net/api/zipdeploy" \
+        --user "${{ secrets.AZURE_DEPLOYMENT_USER }}:${{ secrets.AZURE_DEPLOYMENT_PASSWORD }}" \
+        --data-binary @"backend.zip"
+      env:
+        DB_SERVER: ${{ secrets.DB_SERVER }}
+        DB_DATABASE: ${{ secrets.DB_DATABASE }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_ENCRYPT: ${{ secrets.DB_ENCRYPT }}
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        ALLOWED_ORIGINS: ${{ secrets.ALLOWED_ORIGINS }} 
