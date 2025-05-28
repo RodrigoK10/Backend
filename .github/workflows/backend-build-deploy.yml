@@ -1,69 +1,32 @@
-name: CI/CD for Backend
+name: Build and deploy Node.js app to Azure Web App - zjulen
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-  test:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm install
-      
-    - name: Run tests
-      run: npm test
-      env:
-        DB_USER: ${{ secrets.DB_USER }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        DB_SERVER: ${{ secrets.DB_SERVER }}
-        DB_DATABASE: ${{ secrets.DB_DATABASE }}
-        JWT_SECRET: ${{ secrets.JWT_SECRET }}
-        DB_ENCRYPT: ${{ secrets.DB_ENCRYPT }}
-        ALLOWED_ORIGINS: ${{ secrets.ALLOWED_ORIGINS }}
 
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Use Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18.x'
-        
-    - name: Install dependencies
-      run: npm install
+      - uses: actions/checkout@v4
 
-    - name: Create deployment package
-      run: |
-        rm -f backend.zip
-        zip -r backend.zip * .[^.]* -x "node_modules/*" ".env" "tests/*"
-      
-    - name: Deploy to Azure
-      run: |
-        curl -X POST "https://zjulen.scm.azurewebsites.net/api/zipdeploy" \
-        --user "${{ secrets.AZURE_BACKEND_DEPLOY }}:${{ secrets.AZURE_BACKEND_DEPLOY }}" \
-        --data-binary @"backend.zip"
-      env:
-        DB_SERVER: ${{ secrets.DB_SERVER }}
-        DB_DATABASE: ${{ secrets.DB_DATABASE }}
-        DB_USER: ${{ secrets.DB_USER }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        DB_ENCRYPT: ${{ secrets.DB_ENCRYPT }}
-        JWT_SECRET: ${{ secrets.JWT_SECRET }}
-        ALLOWED_ORIGINS: ${{ secrets.ALLOWED_ORIGINS }} 
+      - name: Set up Node.js version
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+
+      - name: npm install and build
+        run: |
+          npm install
+          npm run build --if-present
+
+      - name: 'Deploy to Azure Web App'
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'zjulen
+          publish-profile: ${{ secrets.AZURE_WEBAPP_BACKEND_PUBLISH_PROFILE }}
+          package: .
